@@ -21,6 +21,7 @@ class Preference(db.Model):
 class Moim(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     meeting_name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)  # 설명 필드 추가
     date = db.Column(db.String(50), nullable=False)
     time = db.Column(db.String(50), nullable=False)
     friends = db.Column(db.Text, nullable=False)  # 친구들의 이름 리스트
@@ -105,6 +106,7 @@ def get_meetings():
             {
                 "id": meeting.id,  # 모임 ID 추가
                 "name": meeting.meeting_name,
+                "description": meeting.description,
                 "date": meeting.date,
                 "time": meeting.time,
                 "friends": json.loads(meeting.friends),
@@ -123,6 +125,7 @@ def create_meeting():
     try:
         data = request.json
         meeting_name = data.get("name")
+        description = data["description"]
         date = data.get("date")
         time = data.get("time")
         selected_friends = data.get("friends", [])
@@ -152,6 +155,7 @@ def create_meeting():
         # 데이터 저장
         new_moin = Moim(
             meeting_name=meeting_name,
+            description=description,
             date=date,
             time=time,
             friends=json.dumps(selected_friends),

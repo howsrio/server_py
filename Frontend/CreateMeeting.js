@@ -95,6 +95,7 @@ async function fetchAndDisplayMeetings() {
             <h3>${meeting.name}</h3>
             <button class="delete-meeting" data-id="${meeting.id}">x</button>
           </div>
+          <p>설명: ${meeting.description}</p>
           <p>날짜: ${meeting.date}</p>
           <p>시간: ${meeting.time}</p>
           <div class="friends-container">${friendsHTML}</div>
@@ -116,43 +117,40 @@ async function fetchAndDisplayMeetings() {
 }
 
 
-
-// 모임 정보 저장 및 서버에서 데이터 불러오기
 document.getElementById("filter-form").addEventListener("submit", async function (e) {
   e.preventDefault();
 
   const meetingName = document.getElementById("meeting-name").value;
+  const description = document.getElementById("meeting-description").value; // 설명 추가
   const date = document.getElementById("meeting-date").value;
   const time = document.getElementById("meeting-time").value;
 
   try {
-    const responseSave = await fetch("/create-meeting", {
+    const response = await fetch("/create-meeting", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: meetingName,
+        description: description,
         date: date,
         time: time,
         friends: selectedFriendNames,
       }),
     });
 
-    const result = await responseSave.json();
+    const result = await response.json();
     if (result.status === "success") {
       alert(result.message);
-      await fetchAndDisplayMeetings(); // 저장된 모임 데이터를 불러와 표시
       resetForm();
-    } else if (result.status === "duplicate") {
-      alert(result.message);
-      await fetchAndDisplayMeetings(); // 중복된 데이터 표시
+      await fetchAndDisplayMeetings();
     } else {
-      throw new Error(result.message);
+      alert(result.message);
     }
   } catch (error) {
     console.error("모임 저장 실패:", error);
-    alert("모임 저장 중 오류가 발생했습니다.");
   }
 });
+
 
 // 모임 삭제
 async function deleteMeeting(meetingId) {
