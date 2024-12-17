@@ -186,6 +186,36 @@ def delete_meeting(meeting_id):
         print("모임 삭제 실패:", e)
         db.session.rollback()
         return jsonify({"status": "error", "message": "서버 오류가 발생했습니다."}), 500
+    
+@app.route("/recommend")
+def recommend_page():
+    meeting_name = request.args.get("meeting_name", "")
+    return render_template("Recommend.html", meeting_name=meeting_name)
+
+from urllib.parse import unquote
+
+@app.route("/get-meeting-details/<path:meeting_name>", methods=["GET"])
+def get_meeting_details(meeting_name):
+    """모임 이름으로 모임 데이터를 가져오는 API"""
+    try:
+        decoded_name = unquote(meeting_name)  # URL 디코딩 처리
+        meeting = Moim.query.filter_by(meeting_name=decoded_name).first()
+        if not meeting:
+            return jsonify({"error": "모임 정보를 찾을 수 없습니다."}), 404
+
+        return jsonify({
+            "name": meeting.meeting_name,
+            "description": meeting.description,
+            "date": meeting.date,
+            "time": meeting.time,
+            "friends": json.loads(meeting.friends),
+            "friend_details": json.loads(meeting.friend_details),
+        }), 200
+    except Exception as e:
+        print("Error while fetching meeting details:", e)
+        return jsonify({"error": "서버 오류가 발생했습니다."}), 500
+
+
 
 
 

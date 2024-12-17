@@ -91,15 +91,18 @@ async function fetchAndDisplayMeetings() {
         `).join("");
 
         meetingBox.innerHTML = `
+        <a href="/recommend?meeting_name=${encodeURIComponent(meeting.name)}" style="text-decoration:none; color:inherit;">
           <div class="meeting-header">
             <h3>${meeting.name}</h3>
-            <button class="delete-meeting" data-id="${meeting.id}">x</button>
+            <button class="delete-meeting" data-id="${meeting.id}" style="float:right;">x</button>
           </div>
           <p>설명: ${meeting.description}</p>
           <p>날짜: ${meeting.date}</p>
           <p>시간: ${meeting.time}</p>
           <div class="friends-container">${friendsHTML}</div>
-        `;
+        </a>
+      `;
+      
         resultsContainer.appendChild(meetingBox);
       });
 
