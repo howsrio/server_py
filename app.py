@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 import os
+import json
 
 app = Flask(__name__, template_folder="frontend", static_folder="frontend")
 
@@ -16,6 +17,14 @@ class Preference(db.Model):
     location = db.Column(db.String(120), nullable=False)
     positive_prompt = db.Column(db.Text, nullable=True)
     negative_prompt = db.Column(db.Text, nullable=True)
+
+class Moim(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    meeting_name = db.Column(db.String(100), nullable=False)
+    date = db.Column(db.String(50), nullable=False)
+    time = db.Column(db.String(50), nullable=False)
+    friends = db.Column(db.Text, nullable=False)  # 친구들의 이름 리스트
+    friend_details = db.Column(db.Text, nullable=False)  # 위치, 선호, 비선호 리스트
 
 # 애플리케이션 시작 시 DB 생성
 with app.app_context():
@@ -87,24 +96,98 @@ def get_friend_names():
         return jsonify({"error": "친구 이름을 불러오는 중 오류가 발생했습니다."}), 500
 
 
-@app.route("/get-friend-details", methods=["POST"])
-def get_friend_details():
-    """선택된 이름에 대한 나머지 속성 반환"""
+@app.route("/get-meetings", methods=["GET"])
+def get_meetings():
+    """저장된 모임 데이터를 반환"""
+    try:
+        meetings = Moim.query.all()
+        result = [
+            {
+                "id": meeting.id,  # 모임 ID 추가
+                "name": meeting.meeting_name,
+                "date": meeting.date,
+                "time": meeting.time,
+                "friends": json.loads(meeting.friends),
+            }
+            for meeting in meetings
+        ]
+        return jsonify(result)
+    except Exception as e:
+        print("모임 데이터 불러오기 실패:", e)
+        return jsonify({"error": "모임 데이터를 가져오는 중 오류가 발생했습니다."}), 500
+
+
+@app.route("/create-meeting", methods=["POST"])
+def create_meeting():
+    """모임 정보를 저장하는 라우트"""
     try:
         data = request.json
-        selected_names = data.get("names", [])
+        meeting_name = data.get("name")
+        date = data.get("date")
+        time = data.get("time")
+        selected_friends = data.get("friends", [])
 
-        friends = Preference.query.filter(Preference.name.in_(selected_names)).all()
+        if not meeting_name or not date or not time:
+            return jsonify({"status": "error", "message": "모임 이름, 날짜, 시간은 필수입니다."}), 400
+
+        if not selected_friends:
+            return jsonify({"status": "error", "message": "친구를 선택해주세요."}), 400
+
+        # 모임 중복 확인
+        existing_meeting = Moim.query.filter_by(meeting_name=meeting_name, date=date, time=time).first()
+        if existing_meeting:
+            return jsonify({"status": "duplicate", "message": "이미 같은 이름과 시간의 모임이 존재합니다."}), 200
+
+        # 선택된 친구들의 세부 정보 가져오기
+        friends = Preference.query.filter(Preference.name.in_(selected_friends)).all()
+        if not friends:
+            return jsonify({"status": "error", "message": "선택된 친구의 정보가 없습니다."}), 404
+
         friend_details = {
-            "name": [friend.name for friend in friends],
-            "location": [friend.location for friend in friends],
-            "positive_prompt": [friend.positive_prompt for friend in friends],
-            "negative_prompt": [friend.negative_prompt for friend in friends],
+            "location": [friend.location for friend in friends if friend.location],
+            "positive_prompt": [friend.positive_prompt for friend in friends if friend.positive_prompt],
+            "negative_prompt": [friend.negative_prompt for friend in friends if friend.negative_prompt],
         }
-        return jsonify(friend_details)
+
+        # 데이터 저장
+        new_moin = Moim(
+            meeting_name=meeting_name,
+            date=date,
+            time=time,
+            friends=json.dumps(selected_friends),
+            friend_details=json.dumps(friend_details)
+        )
+        db.session.add(new_moin)
+        db.session.commit()
+
+        return jsonify({"status": "success", "message": "모임이 성공적으로 생성되었습니다."})
     except Exception as e:
-        print("Error:", e)
-        return jsonify({"error": "친구 세부 정보를 불러오는 중 오류가 발생했습니다."}), 500
+        print("모임 저장 실패:", e)
+        db.session.rollback()
+        return jsonify({"status": "error", "message": "서버 오류가 발생했습니다."}), 500
+    
+
+@app.route("/delete-meeting/<int:meeting_id>", methods=["DELETE"])
+def delete_meeting(meeting_id):
+    """모임 삭제 라우트"""
+    try:
+        meeting = Moim.query.get(meeting_id)
+        if not meeting:
+            return jsonify({"status": "error", "message": "모임을 찾을 수 없습니다."}), 404
+
+        db.session.delete(meeting)
+        db.session.commit()
+        return jsonify({"status": "success", "message": "모임이 성공적으로 삭제되었습니다."})
+    except Exception as e:
+        print("모임 삭제 실패:", e)
+        db.session.rollback()
+        return jsonify({"status": "error", "message": "서버 오류가 발생했습니다."}), 500
+
+
+
+
+
+
 
 
 if __name__ == "__main__":

@@ -45,6 +45,79 @@
       margin: 0 auto;
       margin-bottom: 60px; /* footer와 겹치지 않도록 여백 추가 */
     }
+  
+
+   /* 모임 박스 스타일 */
+   .meeting-box {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+    height: auto;
+    width: 250px;
+    display: inline-block;
+    vertical-align: top;
+    box-sizing: border-box;
+    font-size: 14px;
+  }
+
+  .meeting-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+
+  /* 친구 이름을 카드 형식으로 가로 배열 */
+  .friends-container {
+    display: flex;
+    flex-wrap: wrap; /* 여러 줄 허용 */
+    gap: 5px; /* 카드 간 간격 */
+    margin-top: 8px;
+  }
+
+  .friend-card {
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    padding: 5px 10px;
+    background-color: #e7f1ff;
+    color: #333;
+    font-size: 12px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    white-space: nowrap; /* 이름이 줄바꿈되지 않도록 설정 */
+  }
+
+  .meeting-box p {
+    margin: 3px 0;
+    font-size: 13px;
+    line-height: 1.2;
+  }
+  /* 삭제 버튼 스타일 */
+  .delete-meeting {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background-color: transparent;
+    font-size: 16px;
+    font-weight: bold;
+    color: red;
+    cursor: pointer;
+  }
+  .delete-meeting:hover {
+    color: darkred;
+  }
+
+  /* 모임 컨테이너 스타일: 박스를 가로로 배치 */
+  #results-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* 박스 간격 */
+    justify-content: start;
+  }
   </style>
 </head>
 <body>
