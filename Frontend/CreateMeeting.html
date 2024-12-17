@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>모임 만들기</title>
+  <link rel="stylesheet" href="Recommend.css" />
+  <style>
+    /* 친구 목록 스타일 */
+    .friend-list {
+      display: none;
+      border: 1px solid #ccc;
+      max-height: 150px;
+      overflow-y: auto;
+      background-color: #fff;
+      position: absolute;
+    }
+    .friend-item {
+      padding: 10px;
+      cursor: pointer;
+    }
+    .friend-item:hover {
+      background-color: #f0f0f0;
+    }
+    .selected-friends {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    .selected-friend {
+      display: inline-block;
+      border: 1px solid #007bff;
+      border-radius: 5px;
+      padding: 5px 10px;
+      margin-right: 5px;
+      background-color: #e7f1ff;
+    }
+    .remove-friend {
+      margin-left: 5px;
+      cursor: pointer;
+      color: red;
+    }
+    main {
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      margin-bottom: 60px; /* footer와 겹치지 않도록 여백 추가 */
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>모임 만들기</h1>
+</header>
+
+<main>
+  <section id="filters">
+    <h2>새 모임 만들기</h2>
+    <form id="filter-form" method="POST" action="/create-meeting">
+      <label for="meeting-name">모임 이름:</label>
+      <input type="text" id="meeting-name" name="meeting-name" required>
+
+      <label for="meeting-date">날짜:</label>
+      <input type="date" id="meeting-date" name="meeting-date" required>
+
+      <label for="meeting-time">시간:</label>
+      <input type="time" id="meeting-time" name="meeting-time" required>
+
+      <div style="position: relative;">
+        <button type="button" id="add-friend-button">+ 친구 초대하기</button>
+        <div id="friend-list" class="friend-list"></div>
+        <div class="selected-friends" id="selected-friends-container"></div>
+      </div>
+
+      <button type="submit">모임 만들기</button>
+    </form>
+  </section>
+
+  <section id="results">
+    <h2>생성된 모임</h2>
+    <div id="results-container"></div>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; Team Recomo의 모임장소 추천서비스 &copy; 2024</p>
+</footer>
+
+<!-- JavaScript 파일 -->
+<script src="CreateMeeting.js"></script>
+</body>
+</html>
