@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 import json
 
-app = Flask(__name__, template_folder="./frontend", static_folder="./frontend")
+app = Flask(__name__, template_folder="templates", static_folder="templates")
 
 # 데이터베이스 설정
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///preferences.db"
@@ -40,6 +40,11 @@ def home():
 @app.route("/create-preferences")
 def create_preferences():
     return render_template("CreatePreferences.html")
+
+# 정적 파일 경로 설정 (CSS, JS 등)
+@app.route("/<path:filename>")
+def static_files(filename):
+    return send_from_directory(app.static_folder, filename)
 
 # 취향 데이터 저장 및 DB 내용 출력
 @app.route("/save-preference", methods=["POST"])
@@ -79,11 +84,6 @@ def save_preference():
 
     return jsonify({"status": "success", "message": message}), 200
 
-
-# 정적 파일 경로 설정 (CSS, JS 등)
-@app.route("/<path:filename>")
-def static_files(filename):
-    return send_from_directory(app.static_folder, filename)
 
 @app.route("/get-friends-names", methods=["GET"])
 def get_friend_names():
