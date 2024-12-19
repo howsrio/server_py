@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 import json
 
-app = Flask(__name__, template_folder="frontend", static_folder="frontend")
+app = Flask(__name__, template_folder="./frontend", static_folder="./frontend")
 
 # 데이터베이스 설정
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///preferences.db"
@@ -221,5 +221,8 @@ def get_meeting_details(meeting_name):
 
 
 
+
+
+
 if __name__ == "__main__":
-    app.run(host = "0.0.0.0", debug=True)
+    app.run(host='0.0.0.0', debug=True)
